@@ -1,0 +1,895 @@
+---
+title: "En samfunnsøkonomisk analyse av turistskatt"
+subtitle: "Fakultet for biovitenskap, fiskeri og økonomi."
+author: "Kandidatnummer 31, SOK-1006 Høst 2023"
+format: pdf
+editor: visual
+echo: false
+message: false
+---
+
+# 
+
+### Kapittel 1 - Innledning
+
+#### *Bakgrunn og innledning:*
+
+I januar 2023 kunngjorde Nærings- og fiskeridepartementet at Regjeringen vil gi kommuner mulighet til å innføre besøksbidrag. En mulig utforming av et besøksbidrag er turistskatt på overnatting.
+
+Norge har hatt enorm vekst i turistkonsum de siste årene. Turismen bringer fordeler i den forstand at det åpner for flere arbeidsplasser innenfor reiselivs- og serveringsvirksomheten. Det er også en viktig faktor for konsumvekst i enkelte deler av landet.
+
+På den andre siden bringer også turismen med seg problemer. I denne utredningen vil jeg se litt mer spesifikt på data for Tromsø og Lofoten. Det som er spesielt med begge byene er at det er relativt små. Hverfall hvis de sammenlignes med Osle eller Bergen. Likevell er de blant de mest populære reisedestinasjonene i Norge. Fordelen med en turistskatt er at gevinsten den skaper, vil kunne bidra til å imøtekomme den økende turismen i byer som Tromsø og Lofoten.
+
+Turistskatt på overnatting fungerer ved at det legges til i kostnaden for hotellrommet, enten som en bestemt sum, eller som en prosentandel av kostnaden for rommet. Regjeringens ønske er at områdene med overturisme, vil kunne innføre ett besøkbidraget som vil hjelpe med å dempe turiststrømmen, og dermed redusere belastningen turismen påfører lokalsamfunnet. I tillegg vil skatten generere ett overskudd som vil kunne brukes på å forbedre infrastrukturen i samfunnet. Overskuddet kan f.eks. brukes på:
+
+-   Håndtering av boss og avfallssortering
+
+-   Mer midler til offentlig beredskap som politi, brann- og helsevesen
+
+-   Vedlikehold av bygg for allmenheten, samt veier, parker osv.
+
+-   Preservere natur, samt naturressurser
+
+#### Turistskatt i andre land
+
+Turistskatt på overnattinger er ett tiltak som har blitt stadig mer vanlig i byer og land verden over. Mange av Europas mest populære turistdestinasjoner, som Amsterdam, Barcelona og Roma har allerede innført en slik skatt. Også i USA er turistskatt vanlig praksis, spesielt i storbyene som New York, Los Angeles eller Las Vegas. Sett på disse plassene er det ikke noe fastsatt regel på hva turistskatten skal være. Den kan variere fra plass til plass. Likevell kan faktorer påvirke, og hovedfaktoren er etterspørsel. Dette skal vi se nærme på i kapittel 3. Eksempler på turistskatt i europeiske byer\[1\]:
+
+-   Dersom du overnatter på hotellrom i Praha, Tjsekkia er turistskatten for overnatting under €1 og betales per natt.
+
+-   I Frankrike kan det variere fra €0.20 til rundt €4 per natt.
+
+-   I Tyskland kalles det "kulturskatt" og der opereres det med en fast prosentandel, 5% av hotellregningen.
+
+-   På Spanias ferieøye, som Mallorca, Menorca, Ibiza eller Formentera kan turistskatten ligge på €4 per natt i høysesongen.
+
+#### **Utredningens innhold:**
+
+I denne utredningen skal jeg se nærmere på de samfunnsøkonomiske konsekvensene en turistskatt kan føre til, og hvordan dette vil påvirke turistnæringen og økonomien, og samfunnet i dens helhet. Jeg vil se på både positive og negative sider ved en turistskatt, og vurdere om det er ett bærekraftig tiltak eller ikke.
+
+**Kapittel 2** -
+
+I dette kapittelet skal vi se nærmere på turismenæringen i Norge, med hovedfokus på Nord-Norge. Da vil vi studere data for turismekonsum, overnattinger, konsumentgruppe og hotellkapasitet. Jeg vil presentere data for regionene Nordland og Troms og Finnmark, og i tillegg se på mer spesifikk data til de mest omtalte turiststedene i Nordland og Troms og Finnmark; Lofoten, og Tromsø.
+
+**Kapittel 3 -**
+
+I dette kapittelet skal vi se på den samfunnsøkonomiske siden ved å innføre en turistskatt på overnatting. Den vil bestå av endel økonomisk teori, deriblant:
+
+-   Vil vi se på markedslikevekt, og begreper knyttet til dette
+
+-   Hvorvidt tilbud og etterspørsel vil endre seg ved innføring av turistskatt
+
+-   Vi vil se om en turistskatt kan være bærekraftig ved bruk av økonomiske modeller.
+
+#### *Utfordringer med turistskatt:*
+
+Selv om turistskatt på overnattinger har blitt stadig mer vanlig, er det mange som stiller seg kritisk til skatteleggingen, deriblant reiselivsaktører, serveringlokaler og overnattingsteder. I en artikkel fra NHO påpekes det at hotellene i Norge har blant Europas høyeste momsnivå på overnattinger. Ved å påføre turistskatt på overnatting vil det komme som en ekstra overnattingsmoms. Det kan tenkes at dersom det kommer skatter oppå skatter, så vil kanskje turistene føle seg utnyttet. Eller kanskje enkelte ikke får råd til reiseopplevelsen.
+
+```{python}
+#importerer pakker
+import json
+import pandas as pd
+import requests
+from pyjstat import pyjstat
+from matplotlib import pyplot as plt
+import matplotlib.ticker as mtick
+import sympy as sp
+import numpy as np
+```
+
+```{python}
+plt.close()
+```
+
+```{python}
+postUrl = "https://data.ssb.no/api/v0/no/table/13155/"
+
+
+apiQuery = {
+  "query": [
+    {
+      "code": "Region",
+      "selection": {
+        "filter": "vs:Fylker2020",
+        "values": [
+          "18",
+          "54"
+        ]
+      }
+    },
+    {
+      "code": "HotellFormal",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "03"
+        ]
+      }
+    },
+    {
+      "code": "Tid",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "2020M01",
+          "2020M02",
+          "2020M03",
+          "2020M04",
+          "2020M05",
+          "2020M06",
+          "2020M07",
+          "2020M08",
+          "2020M09",
+          "2020M10",
+          "2020M11",
+          "2020M12",
+          "2021M01",
+          "2021M02",
+          "2021M03",
+          "2021M04",
+          "2021M05",
+          "2021M06",
+          "2021M07",
+          "2021M08",
+          "2021M09",
+          "2021M10",
+          "2021M11",
+          "2021M12",
+          "2022M01",
+          "2022M02",
+          "2022M03",
+          "2022M04",
+          "2022M05",
+          "2022M06",
+          "2022M07",
+          "2022M08",
+          "2022M09",
+          "2022M10",
+          "2022M11",
+          "2022M12",
+          "2023M01"
+        ]
+      }
+    }
+  ],
+  "response": {
+    "format": "json-stat2"
+  }
+}
+
+def apiToDataframe(postUrl, query):
+
+    # postUrl som spørringen skal postes mot
+    # Spørringen og endepunktet til API-et kan hentes fra Statistikkbanken.
+
+    res = requests.post(postUrl, json=query)
+    # legger resultat i ds. DS har i tillegg en del metadata
+    ds = pyjstat.Dataset.read(res.text)
+    # skriver resultatet til to dataframes
+    # først dataframe med tekst
+    df = ds.write('dataframe')
+    # deretter dataframe med koder
+    df_id = ds.write('dataframe', naming='id')
+    # returnerer også ds i tilfelle en trenger metadata
+    return df, df_id, ds
+
+df_turisme, df_id, ds = apiToDataframe(postUrl, apiQuery)
+```
+
+```{python}
+postUrl = "https://data.ssb.no/api/v0/no/table/13156/"
+
+
+apiQuery = {
+  "query": [
+    {
+      "code": "Region",
+      "selection": {
+        "filter": "vs:ReiselivsRegioner",
+        "values": [
+          "18105",
+          "54101"
+        ]
+      }
+    },
+    {
+      "code": "ContentsCode",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "KapasitetRom"
+        ]
+      }
+    },
+    {
+      "code": "Tid",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "2022M01",
+          "2022M02",
+          "2022M03",
+          "2022M04",
+          "2022M05",
+          "2022M06",
+          "2022M07",
+          "2022M08",
+          "2022M09",
+          "2022M10",
+          "2022M11",
+          "2022M12"
+        ]
+      }
+    }
+  ],
+  "response": {
+    "format": "json-stat2"
+  }
+}
+
+def apiToDataframe(postUrl, query):
+
+    # postUrl som spørringen skal postes mot
+    # Spørringen og endepunktet til API-et kan hentes fra Statistikkbanken.
+
+    res = requests.post(postUrl, json=query)
+    # legger resultat i ds. DS har i tillegg en del metadata
+    ds = pyjstat.Dataset.read(res.text)
+    # skriver resultatet til to dataframes
+    # først dataframe med tekst
+    df = ds.write('dataframe')
+    # deretter dataframe med koder
+    df_id = ds.write('dataframe', naming='id')
+    # returnerer også ds i tilfelle en trenger metadata
+    return df, df_id, ds
+
+df_pros, df_id, ds = apiToDataframe(postUrl, apiQuery)
+```
+
+```{python}
+postUrl = "https://data.ssb.no/api/v0/no/table/13155/"
+
+
+apiQuery = {
+  "query": [
+    {
+      "code": "Region",
+      "selection": {
+        "filter": "vs:ReiselivsRegioner",
+        "values": [
+          "18105",
+          "54101"
+        ]
+      }
+    },
+    {
+      "code": "HotellFormal",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "03"
+        ]
+      }
+    },
+    {
+      "code": "Tid",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "2022M01",
+          "2022M02",
+          "2022M03",
+          "2022M04",
+          "2022M05",
+          "2022M06",
+          "2022M07",
+          "2022M08",
+          "2022M09",
+          "2022M10",
+          "2022M11",
+          "2022M12"
+        ]
+      }
+    }
+  ],
+  "response": {
+    "format": "json-stat2"
+  }
+}
+
+def apiToDataframe(postUrl, query):
+
+    # postUrl som spørringen skal postes mot
+    # Spørringen og endepunktet til API-et kan hentes fra Statistikkbanken.
+
+    res = requests.post(postUrl, json=query)
+    # legger resultat i ds. DS har i tillegg en del metadata
+    ds = pyjstat.Dataset.read(res.text)
+    # skriver resultatet til to dataframes
+    # først dataframe med tekst
+    df = ds.write('dataframe')
+    # deretter dataframe med koder
+    df_id = ds.write('dataframe', naming='id')
+    # returnerer også ds i tilfelle en trenger metadata
+    return df, df_id, ds
+
+df_byer, df_id, ds = apiToDataframe(postUrl, apiQuery)
+```
+
+```{python}
+df_turisme = df_turisme.drop(df_turisme.columns[[1,2]], axis=1) #fjerner unødvendige kolonner
+df_turisme = df_turisme.pivot(index='måned', columns='region', values='value')
+df_turisme.columns = ['Nordland', 'Troms og Finnmark'] #forenkler kolonnenavn
+df_turisme.index = pd.to_datetime(df_turisme.index.astype(str), format='%YM%m') #endrer til datetime format
+df_turisme.index = [date.strftime('%b %Y') for date in df_turisme.index] #endrer til kort månedsnavn
+```
+
+```{python}
+postUrl = "https://data.ssb.no/api/v0/no/table/10638/"
+
+apiQuery = {
+  "query": [
+    {
+      "code": "KonsumInnd",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "TOTK"
+        ]
+      }
+    },
+    {
+      "code": "Reiseliv",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "0",
+          "01",
+          "01.01",
+          "01.02",
+          "01.03",
+          "01.04",
+          "01.05",
+          "01.06",
+          "01.07",
+          "01.08",
+          "01.09",
+          "01.10",
+          "02"
+        ]
+      }
+    },
+    {
+      "code": "ContentsCode",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "FastePriser"
+        ]
+      }
+    }
+  ],
+  "response": {
+    "format": "json-stat2"
+  }
+}
+
+def apiToDataframe(postUrl, query):
+
+    # postUrl som spørringen skal postes mot
+    # Spørringen og endepunktet til API-et kan hentes fra Statistikkbanken.
+
+    res = requests.post(postUrl, json=query)
+    # legger resultat i ds. DS har i tillegg en del metadata
+    ds = pyjstat.Dataset.read(res.text)
+    # skriver resultatet til to dataframes
+    # først dataframe med tekst
+    df = ds.write('dataframe')
+    # deretter dataframe med koder
+    df_id = ds.write('dataframe', naming='id')
+    # returnerer også ds i tilfelle en trenger metadata
+    return df, df_id, ds
+
+df_konsum, df_id, ds = apiToDataframe(postUrl, apiQuery)
+```
+
+```{python}
+df_konsum = df_konsum.drop(df_konsum.columns[[0,2]], axis=1)
+df_konsum = df_konsum.pivot(index='år', columns='reiselivsnæring', values='value')
+df_konsum = df_konsum.dropna()
+df_konsum = df_konsum.drop(df_konsum.columns[[3,10,11]], axis=1)
+```
+
+```{python}
+#her forenkler jeg navn og utvider næringsgruppene slik at det blir mer ryddig plot
+df_konsum['Kultur-, og andre tilbudstjenester'] = df_konsum['Kultur- og underholdningstjenester'] + df_konsum['Sports- og fritidstjenester']
+df_konsum['Transport på land'] = df_konsum['Transport med buss og drosje'] + df_konsum['Transport med jernbane']
+df_konsum['Reisebyrå- og reisearrangørtjenester'] = df_konsum['Reisebyrå- og reisearrangørtjenester'] + df_konsum['Utleie av transportmidler']
+df_konsum['Transport til havs'] = df_konsum['Transport med skip og ferger']
+df_konsum = df_konsum.drop(df_konsum.columns[[0,2,4,5,7,9]], axis=1)
+df_konsum = df_konsum.drop(df_konsum.index[0:2]) #tenker det er betydelig å se på det over en
+df_konsum = df_konsum.drop(df_konsum.index[-1]) #tiårsperiode, velger også og utelate 2020
+```
+
+#### **Kapittel 2 - Turistnæringen i Norge**
+
+**Innledende tekst:**
+
+Turisme har blitt mer vanlig for en større del av befolkningen i flere land, dette kan være resultat av at mange økonomier har stor økonomisk vekst, og dermed øker sitt brutto nasjonaleprodukt (BNP). Når BNP øker, får befolkningen mer penger til overs, som mange velger å bruke på reiser og fritidsaktiviteter. Kina er ett godt eksempel på dette, ettersom de har vært den raskeste voksende økonomien over det siste tiåret. I en artikkel fra Innovasjon Norge viser de til en vekst i antall kinesiske besøkende på 856% fra 2008 til 2018.\[2\]
+
+```{python}
+fig1, ax = plt.subplots(figsize=(10, 5))
+ax.spines['top'].set_color('none')
+ax.spines['right'].set_color('none')
+ax.set_title('Totalt konsum for turistnæringen (Faste 2020 priser)', fontsize=12, fontweight='bold')
+ax.text(0.9, -0.1, 'Kilde: Statistisk sentrabyrå', ha='center', va='center', transform=ax.transAxes, fontsize=8)
+ax.xaxis.label.set_visible(False)
+
+df_konsum.plot(ax=ax, kind='line', linewidth=2)
+plt.xticks(rotation=0)
+mill = mtick.FuncFormatter(lambda x, pos: '{:.0f}M'.format(x))
+ax.yaxis.set_major_formatter(mill);
+ax.legend(bbox_to_anchor=(.72, -0.1), ncol=2, frameon=False, fontsize=10);
+```
+
+**Figur 1.1 viser det totale konsumet for turistnæringsgruppene i Norge fra 2009 til 2019 i faste 2020 priser.** **Tallene vises i antall millioner NOK.**
+
+Vi ser på figuren at alle turistnæringene har fått økning i konsum i denne tiårs perioden, og siden vi jobber med faste 2020 priser kan vi anta at dette er grunnet økning i turisme.
+
+I tabellen under har jeg regnet ut det totale konsumet for 2009 og 2019, og der ser vi at det på en tiårsperiode har økt med omlag 30 milliarder NOK, som tilsvarer ca 25%.
+
+```{python}
+# Calculate the sum of values in the first row
+sum_før = df_konsum.iloc[0].sum()
+sum_etter = df_konsum.iloc[-1].sum()
+
+# Create a summary dataframe with the total of the first row and the sum of the last row
+df_sammenligning = pd.DataFrame({'Total konsum 2009': [sum_før], 'Total konsum 2019': [sum_etter]})
+
+# Display the summary dataframe
+df_sammenligning;
+```
+
+```{python}
+#data for sysselsetting i nord-norge
+postUrl = "https://data.ssb.no/api/v0/no/table/10604/"
+
+apiQuery = {
+  "query": [
+    {
+      "code": "Reiseliv",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "OTV",
+          "SEV",
+          "TRJ",
+          "TRBSD",
+          "TRSF",
+          "TRF",
+          "UTL",
+          "RBAV",
+          "KUV",
+          "SAF"
+        ]
+      }
+    },
+    {
+      "code": "Tid",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "2011",
+          "2012",
+          "2013",
+          "2014",
+          "2015",
+          "2016",
+          "2017",
+          "2018",
+          "2019",
+          "2020"
+        ]
+      }
+    }
+  ],
+  "response": {
+    "format": "json-stat2"
+  }
+}
+
+# Funksjon for å konvertere uttrekket til 2 dataframes, tar 2 paramtre
+
+def apiToDataframe(postUrl, query):
+
+    # postUrl som spørringen skal postes mot
+    # Spørringen og endepunktet til API-et kan hentes fra Statistikkbanken.
+
+    res = requests.post(postUrl, json=query)
+    # legger resultat i ds. DS har i tillegg en del metadata
+    ds = pyjstat.Dataset.read(res.text)
+    # skriver resultatet til to dataframes
+    # først dataframe med tekst
+    df = ds.write('dataframe')
+    # deretter dataframe med koder
+    df_id = ds.write('dataframe', naming='id')
+    # returnerer også ds i tilfelle en trenger metadata
+    return df, df_id, ds
+
+df_årsverk, df_id, ds = apiToDataframe(postUrl, apiQuery)
+```
+
+```{python}
+df_årsverk = df_årsverk.drop(df_årsverk.columns[[1]], axis=1) #fjerner unødvendige kolonner
+df_årsverk = df_årsverk.pivot(index='år', columns='reiselivsnæring', values='value') #pivot wider
+df_årsverk['Kultur-, underholdning-, Sport- og Fritidsvirksomhet'] = df_årsverk['Kultur- og underholdningsvirksomhet'] + df_årsverk['Sport og annen fritidsvirksomhet']
+df_årsverk['Transport med buss, sporvei, drosje og jernbane'] = df_årsverk['Transport med buss, sporvei og drosje'] + df_årsverk['Transport med jernbane']
+df_årsverk['Reisebyrå- og reisearrangørvirksomhet, samt utleie og leasingvirksomhet'] = df_årsverk['Reisebyrå- og reisearrangørvirksomhet'] + df_årsverk['Utleie- og leasingvirksomhet']
+df_årsverk = df_årsverk.drop(df_årsverk.columns[[0,2,4,5,7,9]], axis=1)
+```
+
+```{python}
+fig1, ax = plt.subplots(figsize=(10,5))
+ax.spines['top'].set_color('none')
+ax.spines['right'].set_color('none')
+ax.set_title('Sysselsetting i reiselivsnæringen (1000 årsverk)', fontsize=12, fontweight='bold')
+ax.text(0.9, -0.1, 'Kilde: Statistisk sentrabyrå', ha='center', va='center', transform=ax.transAxes, fontsize=8)
+ax.xaxis.label.set_visible(False)
+
+df_årsverk.plot(ax=ax, kind='line', linewidth=2)
+plt.xticks(rotation=0)
+ax.legend(bbox_to_anchor=(1, -0.1), ncol=2, frameon=False, fontsize=10);
+```
+
+**Figur 1.2 - Sysselsetting i turistnæringen (1000 årsverk)**
+
+Figur 1.2 viser sysselsettingen innenfor de forskjellige turist næringesgruppene sett i 1000 årsverk fra 2011 til 2019.
+
+Næringsgruppen som har hatt den største prosentvise økningen i konsum er Overnattingstjenester. Overnattingstjenester omfatter både komersielle overnattinger som på hotell, campingplass eller hytter, eller overnatting i private husstand. Sett i tabellen under ser vi at konsumet nesten har økt med 8 milliarder NOK. Det tilsvarer omlag 65% økning i konsum på samme 10 års periode.
+
+```{python}
+df_konsum.iloc[[0,-1]][['Overnattingstjenester']]
+```
+
+```{python}
+postUrl = "https://data.ssb.no/api/v0/no/table/10638/"
+apiQuery = {
+  "query": [
+    {
+      "code": "KonsumInnd",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "TOTK",
+          "UTLK",
+          "NOHT",
+          "NONF"
+        ]
+      }
+    },
+    {
+      "code": "Reiseliv",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "01.01"
+        ]
+      }
+    },
+    {
+      "code": "ContentsCode",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "FastePriser"
+        ]
+      }
+    },
+    {
+      "code": "Tid",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "2019"
+        ]
+      }
+    }
+  ],
+  "response": {
+    "format": "json-stat2"
+  }
+}
+
+def apiToDataframe(postUrl, query):
+
+    # postUrl som spørringen skal postes mot
+    # Spørringen og endepunktet til API-et kan hentes fra Statistikkbanken.
+
+    res = requests.post(postUrl, json=query)
+    # legger resultat i ds. DS har i tillegg en del metadata
+    ds = pyjstat.Dataset.read(res.text)
+    # skriver resultatet til to dataframes
+    # først dataframe med tekst
+    df = ds.write('dataframe')
+    # deretter dataframe med koder
+    df_id = ds.write('dataframe', naming='id')
+    # returnerer også ds i tilfelle en trenger metadata
+    return df, df_id, ds
+
+df_overnatting_andel, df_id, ds = apiToDataframe(postUrl, apiQuery)
+```
+
+```{python}
+df_overnatting_andel = df_overnatting_andel.drop(df_overnatting_andel.columns[[1,2]], axis=1)
+utl_a = 8644 / 19361 * 100
+hh_a = 5999 / 19361 * 100
+nd_a = 4768 / 19361 * 100
+
+andel = [utl_a, hh_a, nd_a];
+
+```
+
+```{python}
+fig1, ax = plt.subplots()
+
+ax.pie(andel, autopct='%.1f%%')
+ax.set_title('Ulike konsumentgrupper, overnattingstjenester (2019)', fontsize=12, fontweight='bold')
+
+ax.legend(title='Konsumentgruppe', loc='best', labels=['Utenlandske', 'Norske ', 'Norske forrentningsreisende'], bbox_to_anchor=(0.85, 0.1), frameon=False, fontsize=10);
+```
+
+**Figur 1.3 - Konsumentandel på overnattinger (2019) for hele Norge.**
+
+Den største konsumentgruppen er utenlandske på 44.5%, deretter norske turister på 30.9% også norske forretningreisende på 24.6%. Det som kan være interessant som dataen ikke forteller, er hvor mange utenlandske som overnatter grunnet forretningsreise. Likevell vil en turistskatt i all hovedsak treffe begge konsumentgruppen.
+
+**Turisme i Nord-Norge:**
+
+Regionen Nord-Norge er en stor del av turistnæringen i Norge. En plass hvor du kan oppleve Nordlyset, arktisk klima, vakre fjell og fjorder, og rik norsk og samisk kultur.
+
+```{python}
+
+
+
+fig1, ax = plt.subplots(figsize=(10, 5))
+ax.spines['top'].set_color('none')
+ax.spines['right'].set_color('none')
+ax.set_title('Hotell og liknande overnattingsverksemder for turisme', fontsize=12, fontweight='bold')
+ax.text(0.9, -0.1, 'Kilde: Statistisk sentrabyrå', ha='center', va='center', transform=ax.transAxes, fontsize=8)
+ax.xaxis.label.set_visible(False)
+
+df_turisme.plot(ax=ax, kind='line', marker='o', markersize=5, linewidth=2)
+plt.xticks(rotation=0)
+plt.legend(loc='upper left', frameon=False);
+```
+
+**Figur 1.4 - Hotellovernatting og liknende overnattingsverksemder for turismen i Nord-Norge fra Januar 2020 til Januar 2023**
+
+I figur 1.3 ser vi overnattinger på hotell og lignende i Nordland og Troms og Finnmark. Figuren viser ett klart skille mellom høysesong og lavsesong, der forskjellen på det aller meste er 140 tusen overnatting. Troms og Finnmark følger i hovedsak det samme mønster, ikke fullt like mange overnattinger i høysesongen, men vi ser at det er langt flere besøkende også i vintermånedene Desember, Januar og Februar.
+
+```{python}
+df_byer = df_byer.drop(df_byer.columns[[1,2]], axis=1) #fjerner unødvendige kolonner
+df_byer = df_byer.pivot(index='måned', columns='region', values='value')
+#df_byer.columns = ['Lofoten', 'Tromsø'] #forenkler kolonnenavn
+df_byer.index = pd.to_datetime(df_byer.index.astype(str), format='%YM%m') #endrer til datetime format
+df_byer.index = [date.strftime('%b') for date in df_byer.index] #endrer til kort månedsnavn
+```
+
+```{python}
+df_pros = df_pros.drop(df_pros.columns[[1]], axis=1) #fjerner unødvendige kolonner
+df_pros = df_pros.pivot(index='måned', columns='region', values='value') #pivot wider
+df_pros.columns = ['Lofoten', 'Tromsø'] #forenkler kolonnenavn
+df_pros.index = pd.to_datetime(df_pros.index.astype(str), format='%YM%m') #endrer til datetime format
+df_pros.index = [date.strftime('%b') for date in df_pros.index] #endrer til kort månedsnavn
+```
+
+```{python}
+fig1, (ax1,ax) = plt.subplots(1,2, figsize=(10, 5))
+
+ax.spines['top'].set_color('none')
+ax.spines['right'].set_color('none')
+ax.set_title('Kapasitetsutnyttelse av hotellrom og lignende (2022)', fontsize=10, fontweight='bold')
+ax.text(0.9, -0.1, 'Kilde: Statistisk sentrabyrå', ha='center', va='center', transform=ax.transAxes, fontsize=8)
+ax.xaxis.label.set_visible(False)
+ax.yaxis.set_major_formatter(mtick.PercentFormatter())
+
+ax1.spines['top'].set_color('none')
+ax1.spines['right'].set_color('none')
+ax1.set_title('Hotellovernattinger og lignende (2022)', fontsize=10, fontweight='bold')
+ax1.text(0.9, -0.1, 'Kilde: Statistisk sentrabyrå', ha='center', va='center', transform=ax.transAxes, fontsize=8)
+ax1.xaxis.label.set_visible(False)
+
+
+df_pros.plot(ax=ax, kind='line', marker='o', markersize=5, linewidth=2, linestyle='--')
+df_byer.plot(ax=ax1, kind='line', marker='o', markersize=5, linewidth=2)
+ax1.legend(loc='best', frameon=False)
+ax.legend(loc='best', frameon=False)
+plt.xticks(rotation=0);
+```
+
+**Figur 1.5 - Sammenligning over kapasitetsutnyttelsen av rom til overnatting og utleide rom for Tromsø og Lofoten (2022)**
+
+Figurene viser månedlig antall hotellovernattinger og annen overnatting i Tromsø og Lofoten. Antallet måles i antall rom for året 2022. Antallet hotellovernattinger er ganske betydelig, hvertfall hvis du tar i betraktning at Tromsø kun har omlag 64 000 innbygger, mens loften har i overkant av 24 000. Vi ser at kapasitetsutnyttelsen på overnattingsrom i begge byene høye i høysesongen, mens for Tromsø faller den aldri under 50%,
+
+Dataen forteller oss at turismen har en viktig innflytelse på økonomien i Tromsø og Lofoten. Turismen bringer stor inntekt, og den åpner for mange arbeidsmuligheter innenfor reiselivsbransjen. Likevell viser det seg majoriteten i begge byene ønsker innførelse av turistskatt. Bakgrunn for dette har vi vært inne på tidligere med at turismen bringer mange utfordringer, og den krever mye arbeid og kapital for å egnet til å ha så mye turisme.
+
+Dataen vi har sett på i Tromsø forteller ikke så mye om hva turistskatten på overnatting burde være. Men den forteller at Tromsø er en ideell by hvor noe slikt kunne innføres. Det samme gjelder Lofoten, men til motsetning for Lofoten så kan vi se på muligheten for å ha turistskatt i Tromsø hele året. Det er ikke noe jeg ville anbefalt å starte med i Lofoten ettersom lavsesongen (September-May) ligger under 10 000 hotellrom- og lignende overnattinger. Sett på tabellen under ser vi gjennomsnittet i overnattinger for 2022.
+
+```{python}
+
+tromsø_avg = df_byer.iloc[:, 1].mean()
+lofoten_avg = df_byer.iloc[:, 0].mean()
+
+
+df_avg = pd.DataFrame({'Gjennomsnitt Lofoten 2022': [lofoten_avg], 'Gjennomsnitt Tromsø 2022': [tromsø_avg]})
+
+df_avg
+```
+
+#### Kapittel 3 - Samfunnsøkonomisk konsekvens ved innføring av turistskatt
+
+I forrige kapittel så vi på turismenæringen både nasjonalt, regionalt for Nord-Norge, men også på enkelte byer. Dataen fortalte oss at turismenæringen er veldig lønnsom. Fra 2009 så vi at turistkonsumet i landet har økt fra 92 til 122 milliarder. Ikke bare er det en svært verdifull inntektskilde, men i tillegg så har den vokst 25% på den tiden. I utgangspunktet ville jeg vært forsiktig med å endre på noe som har så stor nytteverdi, og samtidig så stor vekst.
+
+Likevell er agendaen til turistskatt viktig. Se for deg at turistnæringen for Lofoten er en bøtte. Over tid, helles det vann i bøtten i form av økning i turisme, turistskatt kan sette ett hull i bøtten. Dette vil i praksis gjøre at bøtte ikke heller over, men om hullet blir for stort, vil det gi den motsatte effekten. For at det skal være samfunnsøkonomisk nyttig, er det en forutsening om at det må være større nytte en tap.
+
+I figur 1.5 ser vi en generell tilbud og etterspørselskurve.
+
+```{python}
+#definerer funksjonene
+def demand(x):
+    return (500-x)/3.2
+
+def supply(x, t):
+    return ((100+x)/4.3) + t
+
+x, p, t = sp.symbols('x p t', positive=True, real=True)
+```
+
+```{python}
+#Lager likevektsfunksjon
+equ=sp.Eq(demand(x),supply(x,t))
+#Likevektspris
+x_eq = sp.solve(equ, x)
+#Likevektskvantum
+p_eq=demand(x_eq[0])
+#produsentoverskudd
+producer_surplus=sp.integrate(p_eq-supply(x,t),(x,0,x_eq))
+p_s = sp.simplify(producer_surplus)
+#konsumentoverskudd
+consumer_surplus=sp.integrate(demand(x)-p_eq, (x,0,x_eq))
+c_s = sp.simplify(consumer_surplus)
+#statsoverskudd
+welfare_surplus=sp.integrate(demand(x)-supply(x,t),(x,0,p_eq))
+w_s = sp.simplify(welfare_surplus)
+#Avgiftproveny
+a_eq = sp.integrate(4, (x, 0, x_eq)) 
+#equilibrium
+eq0 =sp.Eq(demand(x),supply(x,0))
+x_eq0=sp.solve(eq0, x)
+x_eq0=float(x_eq0[0])
+p_eq0=demand(x_eq0)
+```
+
+**Markedslikevekt og priselastisitet**
+
+```{python}
+x_num=np.linspace(0.1, 400,100)
+
+q = np.linspace(0,x_eq0,100)
+
+#lag en akse
+
+def create_ax():
+                fig, ax = plt.subplots()
+                ax.set_ylabel('Pris (p)', loc='top')
+                ax.set_xlabel('Kvantum (x)', loc='right')
+                ax.set(xlim=(0,400))
+                ax.set(ylim=(0,200))
+                ax.spines['top'].set_color('none')
+                ax.spines['right'].set_color('none')
+                
+                return fig, ax
+
+fig, ax = create_ax()
+
+# plott funksjonen
+
+ax.plot(x_num, demand(x_num), label='Etterspørsel')
+ax.plot(x_num, supply(x_num,0), label='Tilbud')
+#tittel
+ax.set_title('Markedslikevekt uten turistskatt med KO og PO')
+
+#Fyller inn for po og ko
+ax.fill_between(q, p_eq0, demand(q), color = "green",alpha = 0.5,label='Konsumentoverskudd')
+ax.fill_between(q, supply(q, 0), p_eq0, color = "red",alpha = 0.5,label='Produsentoverskudd')
+
+#legende
+ax.legend(bbox_to_anchor=(1.5,0.6));
+```
+
+**Figur 1.6 - Generell Tilbud- og etterspørselskurve**
+
+Figur 1.5 viser pris på y-akse og kvantum på x-aksen. Slik det fungerer vil kurvene alltid stride etter en likevekt. Det har med å gjøre at fra tilbuds siden vil produsentene maksimere profitten. Dersom etterspørselen er større enn det som produseres, vil det være gunstig for dem, eller andre produsenter og øke tilbudet av gjeldende vare eller tjeneste. Det samme gjelder på etterspørselssiden. Dersom prisen er for høy, er betalingsvilligheten lav hos konsumenten, og dermed vil færre kjøpe gjeldende vare. Markedslikevekten er det punktet der både konsument og produsent er like fornøyd. En pris som konsumentene og produsenten er fornøyd med.
+
+-   Produsentoverskudd er forskjellen mellom den faktiske prisen som produsenten mottar for et produkt og den laveste prisen de er villige til å selge produktet for. Det betyr at jo større produsentoverskudd, desto mer lønnsomt er produktet for produsenten
+
+-   Konsumentoverskudd er forskjeller mellom den høyeste prisen som konsumenten er villig til å betale for et produkt, og den faktiske prisen de betaler for produktet. Det betyr at jo større konsumentoverskudd, desto mer verdi får konsumenten fra produktet.
+
+Priselastisitet er også en viktig faktor når det skal besluttes om en vare eller tjeneste er pris sensitiv. Dersom den er uelastisk er ikke konsumenten og produsenten prissensitiv. Dersom den er elastisk er konsument og produsent prissensitiv.
+
+```{python}
+#lager ny ligning for t = 4
+eq_4 = sp.Eq(demand(x),supply(x, 4))
+
+#Finner verdi for pris
+x_eq4 = sp.solve(eq_4,x)
+x_eq4 = float(x_eq4[0])
+#Finner verdi for pris
+p_eq4=demand(x_eq4)
+```
+
+```{python}
+def create_ax_ny():
+                fig, ax = plt.subplots()
+                ax.set_ylabel('Pris (p)', loc='top')
+                ax.set_xlabel('Kvantum (x)', loc='right')
+                ax.set(xlim=(200,275))
+                ax.set(ylim=(60,100))
+                ax.spines['top'].set_color('none')
+                ax.spines['right'].set_color('none')
+                ax.set_xticklabels([])
+                ax.set_yticklabels([])
+                
+                return fig, ax
+
+fig, ax = create_ax_ny()
+
+#plotter funksjonen
+ax.plot(x_num, demand(x_num), label='Etterspørsel')
+ax.plot(x_num, supply(x_num, 0), label='Tilbud u/avgift')
+ax.plot(x_num, supply(x_num, 4), color = "black", alpha=0.5, label='Tilbud m/avgift')
+#tittel
+ax.set_title('Markedslikevekt med og uten avgift', fontweight='bold')
+
+#rekke med tall fra 0 til likevekt
+q2 = np.linspace(0,x_eq4,100)
+
+#rekke med tall fra likevekt med avgift til likevekt uten avgift
+q3 = np.linspace(x_eq0,x_eq4,100)
+
+#langer linjer til likevektspunktere
+ax.vlines(x_eq4,60,demand(x_eq4), color='b',ls='dashed', alpha= 0.5, label='Likevekt etter avgift', clip_on=False)
+ax.vlines(x_eq0,60,demand(x_eq0), color='g',ls='dashed', alpha= 0.5, label='Likevekt før avgift', clip_on=False)
+
+
+#fill between til ko, po, skatt og dødvekt
+ax.fill_between(q2,p_eq4,demand(q2), color = "r",alpha = 0.5,label='Konsumentoverskudd')
+ax.fill_between(q2,supply(q2, 0),p_eq4-4, color = "b",alpha = 0.5,label='Produsentoverskudd')
+ax.fill_between(q2,p_eq4,p_eq4-4, color = "g",alpha = 0.5,label='Skatteproveny')
+ax.fill_between(q3,supply(q3, 0),demand(q3), color = "black",alpha = 0.5,label='Dødvektstap')
+
+#legend
+ax.legend(bbox_to_anchor=(1.5,0.6));
+```
+
+**Figur 1.7 - Markedslikevekt med og uten avgift**
+
+La oss anta at tilbud og etterspørselsfunksjon er for turistnæringen på overnatting. Det er laget en ny tilbudskurve med avgift inkludert, la oss anta at dette er turistskatt på overnatting. Endringen med den nye tilbudskurven er at markedslikevekten har havnet på ett nytt punkt. Sammenligner vi figur 1.6 med figur 1.5 ser vi at konsument- og produsentoverskuddet har blitt langt mindre. Prisøkningen fører til at tilbudskurven treffer etterspørselen på ett høyere punkt. Det gir færre som er villig til å betale for den nye prisen, som vi også kan se på x-aksen i kvantum.
+
+Til forskjell fra figur 1.5 har figur 1.6, to nye fargelagte områder. Skatteprovenyet, er inntekten fra turistskatten. Så dette er penger som vil gå tilbake til Lofoten eller Tromsø ved innførelse av turistskatt. Dødvektstap er velferdstapet som oppstår når markeder blir styrt med skatter og avgifter.
+
+#### Kapittel 4 - Konklusjon
+
+Turistskatt er er ett tiltak som er å finne i de aller fleste storbyene i Europa. Lofoten og Tromsø er byer i Nord-Norge som burde vurderes det dersom regjeringen vil starte ett pilotprosjekt her i Norge. I dataen vi så på med overnatting så vi at turismen var mye mer sesongbasert i Lofoten, og kapasitetutnyttelsen på hotell og overnatting kun var stor i gjeldene periode. Derfor vil det være gunstig om turistskatten i første omgang justeres for sommersesongen. Tromsø har relativt høy turisme, så dersom ønsket er å redusere antall turister i byen, tror jeg det kan vurderes med turistskatt hele året.
+
+Dersom turistskatten innføres er det viktig at overskuddet den generer, går tilbake til samfunnet. Midlene bør benyttes til å gjøre opp for turismen, i form av vedlikehold av infrastruktur, veier og parker og lignende. Opprydding av boss, og midler til politi, brann- og helsevesen.
+
+For å hente tilbake resonnementet om bøtten. Turistnæringen kan vi anta er svært elastisk. Dersom hullet i bøtten blir for stort, vil det kunne drive vekk flere turister, enn hva som er bærekraftig. Jeg ville anbefalt og ta inspirasjon fra land som har hatt turistskatt i lengre tid. Tyskland f.eks. har en fast skatt på 5% av hotellregningen.
+
+Jeg ville vært forsiktig med å innføre turistskatt i byer som ikke har problemer med for mye turisme. Ett perfekt marked er ett urørt marked, og dersom turistskatt fører til dødvektstap, er det ett velferdstap.
+
+#### Kildeliste:
+
+https://www.reiseliv.no/reiseokonomi/turistskatt-kreves-i-mange-land-verden-over/ (Turistskatt kreves i mange land verden over) - Reiseliv\[1\]
+
+https://www.innovasjonnorge.no/no/verktoy/eksport-og-internasjonal-satsing/landinfo/asia/kina/artikler/utilize-the-worlds-biggest-potential-tourist-market/ (Reiseliv fra Kina) - Innovasjon Norge \[2\]
+
+https://www.ssb.no/ - diverse datasett til plotting
